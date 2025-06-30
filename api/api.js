@@ -241,8 +241,6 @@ async function userdownload(req, res) {
       { header: 'Loan Amount', key: 'loan_amount', width: 15 },
       { header: 'Tenure Months', key: 'tenure_months', width: 15 },
       { header: 'Type', key: 'type', width: 15 },
-      { header: 'Verify OTP', key: 'verify_otp', width: 10 },
-      { header: 'Access Token', key: 'access_token', width: 40 },
       { header: 'Create Date', key: 'create_date', width: 25 },
     ];
 
