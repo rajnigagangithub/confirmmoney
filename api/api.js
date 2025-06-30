@@ -184,6 +184,32 @@ async function logoutHandler(req, res) {
   }
 }
 
+async function getUserInfo(req, res) {
+  const { id } = req.query; // or req.body if POST
+
+  if (!id) {
+    return res.status(400).json({ success: false, message: 'Id is required' });
+  }
+
+  try {
+    const [rows] = await db.execute(
+      `SELECT *
+       FROM users
+       WHERE id = ?`,
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    return res.json({ success: true, user: rows[0] });
+  } catch (err) {
+    console.error('Error fetching user info:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+}
+
 
 module.exports = { sendOtpHandler,updateUserInfoHandler,
-  updateUserLoanHandler,verifyOtpHandler,logoutHandler };
+  updateUserLoanHandler,verifyOtpHandler,logoutHandler,getUserInfo };
