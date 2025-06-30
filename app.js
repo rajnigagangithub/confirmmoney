@@ -23,5 +23,5 @@ app.get('/', (req, res) => {
 // Use OTP routes
 app.use('/user', otpRoutes);
 
-const PORT = 3000;
+const PORT = 3306;
 app.listen(PORT, () => console.log(`OTP API server running on port ${PORT}`));
