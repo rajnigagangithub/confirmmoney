@@ -1,4 +1,5 @@
 const db = require('../db');
+const ExcelJS = require('exceljs');
 function generateOTP() {
   return Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit OTP
 }
@@ -211,5 +212,62 @@ async function getUserInfo(req, res) {
 }
 
 
+async function userdownload(req, res) {
+  try {
+    // Fetch all users
+    const [rows] = await db.execute('SELECT * FROM users');
+
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'No users found' });
+    }
+
+    // Create workbook and worksheet
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Users');
+
+    // Add header row (keys from your table columns)
+    worksheet.columns = [
+      { header: 'ID', key: 'id', width: 10 },
+      { header: 'Mobile Number', key: 'mobile_number', width: 20 },
+      { header: 'Name', key: 'name', width: 20 },
+      { header: 'Gender', key: 'gender', width: 10 },
+      { header: 'DOB', key: 'dob', width: 15 },
+      { header: 'Profession', key: 'profession', width: 20 },
+      { header: 'Monthly Income', key: 'monthly_income', width: 15 },
+      { header: 'Pancard', key: 'pancard', width: 20 },
+      { header: 'Adhar Number', key: 'adhar_number', width: 20 },
+      { header: 'Looking For', key: 'looking_for', width: 20 },
+      { header: 'Purpose', key: 'purpose', width: 20 },
+      { header: 'Loan Amount', key: 'loan_amount', width: 15 },
+      { header: 'Tenure Months', key: 'tenure_months', width: 15 },
+      { header: 'Type', key: 'type', width: 15 },
+      { header: 'Verify OTP', key: 'verify_otp', width: 10 },
+      { header: 'Access Token', key: 'access_token', width: 40 },
+      { header: 'Create Date', key: 'create_date', width: 25 },
+    ];
+
+    // Add rows
+    rows.forEach((user) => {
+      worksheet.addRow(user);
+    });
+
+    // Set response headers
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader('Content-Disposition', 'attachment; filename=users.xlsx');
+
+    // Write workbook to response
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (err) {
+    console.error('Error generating Excel:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+
+
 module.exports = { sendOtpHandler,updateUserInfoHandler,
-  updateUserLoanHandler,verifyOtpHandler,logoutHandler,getUserInfo };
+  updateUserLoanHandler,verifyOtpHandler,logoutHandler,getUserInfo,userdownload };
