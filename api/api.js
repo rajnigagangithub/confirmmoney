@@ -1,5 +1,7 @@
 const db = require('../db');
 const ExcelJS = require('exceljs');
+const multer = require('multer');
+const path = require('path');
 function generateOTP() {
   return Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit OTP
 }
@@ -265,7 +267,135 @@ async function userdownload(req, res) {
   }
 };
 
+/**LOAN OFFERS */
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/logos'); // make sure this folder exists
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+  }
+});
+const upload = multer({ storage }).single('logo');
+
+function addLoanOfferHandler(req, res) {
+  upload(req, res, async function (err) {
+    if (err) {
+      console.error('Upload error:', err);
+      return res.status(500).json({ success: false, message: 'Image upload failed' });
+    }
+
+    const { loan_amount, interest_rate, processing_fees, tenure, link } = req.body;
+    if (!loan_amount || !interest_rate) {
+      return res.status(400).json({ success: false, message: 'Required fields are missing' });
+    }
+
+    const logoPath = req.file ? '/uploads/logos/' + req.file.filename : null;
+
+    try {
+      await db.execute(
+        `INSERT INTO loan_offers (logo, loan_amount, interest_rate, processing_fees, tenure, link)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [logoPath, loan_amount, interest_rate, processing_fees, tenure, link]
+      );
+      return res.json({ success: true, message: 'Loan offer added successfully' });
+    } catch (err) {
+      console.error('DB error:', err);
+      return res.status(500).json({ success: false, message: 'Server error' });
+    }
+  });
+}
+
+async function getAllLoanOffersHandler(req, res) {
+  try {
+    const [rows] = await db.execute(
+      `SELECT *
+       FROM loan_offers
+       ORDER BY id DESC`
+    );
+
+    return res.json({ success: true, offers: rows });
+  } catch (err) {
+    console.error('Error fetching loan offers:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+}
+
+async function getLoanOfferByIdHandler(req, res) {
+  const { id } = req.query;
+
+  if (!id) {
+    return res.status(400).json({ success: false, message: 'Loan ID is required' });
+  }
+
+  try {
+    const [rows] = await db.execute(
+      `SELECT *
+       FROM loan_offers
+       WHERE id = ?`,
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Loan offer not found' });
+    }
+
+    return res.json({ success: true, offer: rows[0] });
+  } catch (err) {
+    console.error('Error fetching loan offer:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+}
+
+
+async function updateLoanOfferHandler(req, res) {
+ // const { id } = req.params;
+  const { id,loan_amount, interest_rate, processing_fees, tenure, link } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ success: false, message: 'Loan ID is required' });
+  }
+
+  if (!loan_amount || !interest_rate || !processing_fees || !tenure || !link) {
+    return res.status(400).json({ success: false, message: 'All fields are required' });
+  }
+
+  // If a new logo image was uploaded
+  let logoPath;
+  if (req.file) {
+    logoPath = `/uploads/logos/${req.file.filename}`;
+  }
+
+  try {
+    // Build query dynamically based on whether logo was uploaded
+    let sql = `UPDATE loan_offers SET loan_amount=?, interest_rate=?, processing_fees=?, tenure=?, link=?`;
+    const params = [loan_amount, interest_rate, processing_fees, tenure, link];
+
+    if (logoPath) {
+      sql += `, logo=?`;
+      params.push(logoPath);
+    }
+
+    sql += ` WHERE id=?`;
+    params.push(id);
+
+    const [result] = await db.execute(sql, params);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Loan offer not found' });
+    }
+
+    return res.json({ success: true, message: 'Loan offer updated successfully' });
+  } catch (err) {
+    console.error('Error updating loan offer:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+}
 
 module.exports = { sendOtpHandler,updateUserInfoHandler,
-  updateUserLoanHandler,verifyOtpHandler,logoutHandler,getUserInfo,userdownload };
+  updateUserLoanHandler,verifyOtpHandler,
+  logoutHandler,getUserInfo,userdownload,
+  addLoanOfferHandler,getAllLoanOffersHandler,getLoanOfferByIdHandler,updateLoanOfferHandler };
