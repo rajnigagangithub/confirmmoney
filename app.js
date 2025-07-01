@@ -10,13 +10,21 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const otpRoutes = require('./routes/routes'); // fixed path here!
 
 const app = express();
 app.use(bodyParser.json());
+const fs = require('fs');
+const path = require('path');
 
+const uploadDir = path.join(__dirname, 'uploads/logos');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log(`Created directory: ${uploadDir}`);
+}
 app.get('/', (req, res) => {
   res.send('ConfirmMoney Backend is running!');
 });
