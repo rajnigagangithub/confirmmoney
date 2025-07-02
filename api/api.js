@@ -293,7 +293,7 @@ function addLoanOfferHandler(req, res) {
       return res.status(400).json({ success: false, message: 'Required fields are missing' });
     }
 
-    const logoPath = req.file ? '/uploads/logos/' + req.file.filename : null;
+    const logoPath = 'test.png';//req.file ? '/uploads/logos/' + req.file.filename : null;
 
     try {
       await db.execute(
