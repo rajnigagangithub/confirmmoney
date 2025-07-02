@@ -281,42 +281,31 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage }).single('logo');
 
+
 function addLoanOfferHandler(req, res) {
   upload(req, res, async function (err) {
     if (err) {
-      console.error('Upload error:', err); // 🔎 shows exact error details
-      return res.status(500).json({
-        success: false,
-        message: 'Image upload failed',
-        error: err.message, // send error message to client for debugging
-      });
+      console.error('Upload error:', err);
+      return res.status(500).json({ success: false, message: 'Image upload failed' });
     }
 
-    const { loanAmount, interestRate, processingFee, tenure, link, description, recommended } = req.body;
+    const { loanAmount, interestRate, processingFee, tenure, link , description,recommended} = req.body;
     if (!loanAmount || !interestRate) {
       return res.status(400).json({ success: false, message: 'Required fields are missing' });
     }
 
     const logoPath = req.file ? '/uploads/logos/' + req.file.filename : null;
-    console.log('Request body:', req.body); // 🔎 see what data was received
-    console.log('Uploaded file info:', req.file); // 🔎 see file details
 
     try {
-      const [result] = await db.execute(
-        `INSERT INTO loan_offers (logo, loanAmount, interestRate, processingFee, tenure, link, description, recommended)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      await db.execute(
+        `INSERT INTO loan_offers (logo, loanAmount, interestRate, processingFee, tenure, link,description,recommended)
+         VALUES (?, ?, ?, ?, ?, ?,?,?)`,
         [logoPath, loanAmount, interestRate, processingFee, tenure, link, description, recommended]
       );
-      console.log('DB insert result:', result); // 🔎 shows what DB returned
-
       return res.json({ success: true, message: 'Loan offer added successfully' });
-    } catch (dbErr) {
-      console.error('DB error:', dbErr); // 🔎 shows exact DB error
-      return res.status(500).json({
-        success: false,
-        message: 'Server error',
-        error: dbErr.message, // send DB error message to client for debugging
-      });
+    } catch (err) {
+      console.error('DB error:', err);
+      return res.status(500).json({ success: false, message: 'Server error' });
     }
   });
 }
