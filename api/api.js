@@ -288,7 +288,7 @@ function addLoanOfferHandler(req, res) {
       return res.status(500).json({ success: false, message: 'Image upload failed' });
     }
 
-    const { loan_amount, interest_rate, processing_fees, tenure, link } = req.body;
+    const { loanAmount, interestRate, processingFee, tenure, link } = req.body;
     if (!loan_amount || !interest_rate) {
       return res.status(400).json({ success: false, message: 'Required fields are missing' });
     }
