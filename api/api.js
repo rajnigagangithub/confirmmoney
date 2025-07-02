@@ -297,9 +297,9 @@ function addLoanOfferHandler(req, res) {
 
     try {
       await db.execute(
-        `INSERT INTO loan_offers (logo, loan_amount, interest_rate, processing_fees, tenure, link)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [logoPath, loan_amount, interest_rate, processing_fees, tenure, link]
+        `INSERT INTO loan_offers (logo, loanAmount, interestRate, processingFee, tenure, link,description,recommended)
+         VALUES (?, ?, ?, ?, ?, ?,?,?)`,
+        [logoPath, loanAmount, interestRate, processingFee, tenure, link, description, recommended]
       );
       return res.json({ success: true, message: 'Loan offer added successfully' });
     } catch (err) {
@@ -317,12 +317,33 @@ async function getAllLoanOffersHandler(req, res) {
        ORDER BY id DESC`
     );
 
-    return res.json({ success: true, offers: rows });
+    const documents = [
+      {
+        title: "Identity proof",
+        examples: ["PAN"]
+      },
+      {
+        title: "Current Residence Proof",
+        examples: ["Aadhaar", "Passport"]
+      },
+      {
+        title: "Income Proof (Only for Loan Amount > 50k)",
+        examples: ["Bank Statement (Soft Copy - 3 Months)"]
+      }
+    ];
+
+    return res.json({
+      success: true,
+      offers: rows,
+      documents: documents
+    });
+
   } catch (err) {
     console.error('Error fetching loan offers:', err);
     return res.status(500).json({ success: false, message: 'Server error' });
   }
 }
+
 
 async function getLoanOfferByIdHandler(req, res) {
   const { id } = req.query;
@@ -353,13 +374,13 @@ async function getLoanOfferByIdHandler(req, res) {
 
 async function updateLoanOfferHandler(req, res) {
  // const { id } = req.params;
-  const { id,loan_amount, interest_rate, processing_fees, tenure, link } = req.body;
+  const { id,loanAmount, interestRate, processingFee, tenure, link , description,recommended} = req.body;
 
   if (!id) {
     return res.status(400).json({ success: false, message: 'Loan ID is required' });
   }
 
-  if (!loan_amount || !interest_rate || !processing_fees || !tenure || !link) {
+  if (!loanAmount || !interestRate || !processingFee || !tenure || !link) {
     return res.status(400).json({ success: false, message: 'All fields are required' });
   }
 
@@ -371,8 +392,8 @@ async function updateLoanOfferHandler(req, res) {
 
   try {
     // Build query dynamically based on whether logo was uploaded
-    let sql = `UPDATE loan_offers SET loan_amount=?, interest_rate=?, processing_fees=?, tenure=?, link=?`;
-    const params = [loan_amount, interest_rate, processing_fees, tenure, link];
+    let sql = `UPDATE loan_offers SET loanAmount=?, interestRate=?, processingFee=?, tenure=?, link=?,description=?,recommended=?`;
+    const params = [loanAmount, interestRate, processingFee, tenure, link,description,recommended];
 
     if (logoPath) {
       sql += `, logo=?`;
