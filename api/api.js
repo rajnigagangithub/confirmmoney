@@ -380,48 +380,61 @@ async function getLoanOfferByIdHandler(req, res) {
 
 
 async function updateLoanOfferHandler(req, res) {
- // const { id } = req.params;
-  const { id,loanAmount, interestRate, processingFee, tenure, link , description,recommended} = req.body;
-
-  if (!id) {
-    return res.status(400).json({ success: false, message: 'Loan ID is required' });
-  }
-
-  if (!loanAmount || !interestRate || !processingFee || !tenure || !link) {
-    return res.status(400).json({ success: false, message: 'All fields are required' });
-  }
-
-  // If a new logo image was uploaded
-  let logoPath;
-  if (req.file) {
-    logoPath = `/uploads/logos/${req.file.filename}`;
-  }
-
-  try {
-    // Build query dynamically based on whether logo was uploaded
-    let sql = `UPDATE loan_offers SET loanAmount=?, interestRate=?, processingFee=?, tenure=?, link=?,description=?,recommended=?`;
-    const params = [loanAmount, interestRate, processingFee, tenure, link,description,recommended];
-
-    if (logoPath) {
-      sql += `, logo=?`;
-      params.push(logoPath);
+  upload(req, res, async function (uploadErr) {
+    if (uploadErr) {
+      console.error('Upload error:', uploadErr);
+      return res.status(500).json({ success: false, message: 'Image upload failed' });
     }
 
-    sql += ` WHERE id=?`;
-    params.push(id);
+    console.log('✅ Received req.body:', req.body);
 
-    const [result] = await db.execute(sql, params);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, message: 'Loan offer not found' });
+    if (!req.body || typeof req.body !== 'object') {
+      console.error('❌ req.body is undefined or not an object:', req.body);
+      return res.status(400).json({ success: false, message: 'Invalid or missing JSON body' });
     }
 
-    return res.json({ success: true, message: 'Loan offer updated successfully' });
-  } catch (err) {
-    console.error('Error updating loan offer:', err);
-    return res.status(500).json({ success: false, message: 'Server error' });
-  }
+    const { id, loanAmount, interestRate, processingFee, tenure, link, description, recommended } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ success: false, message: 'Loan ID is required' });
+    }
+
+    if (!loanAmount || !interestRate || !processingFee || !tenure || !link) {
+      return res.status(400).json({ success: false, message: 'All fields are required' });
+    }
+
+    let logoPath;
+    if (req.file) {
+      logoPath = `/uploads/logos/${req.file.filename}`;
+    }
+
+    try {
+      // Build query dynamically
+      let sql = `UPDATE loan_offers SET loanAmount=?, interestRate=?, processingFee=?, tenure=?, link=?, description=?, recommended=?`;
+      const params = [loanAmount, interestRate, processingFee, tenure, link, description, recommended];
+
+      if (logoPath) {
+        sql += `, logo=?`;
+        params.push(logoPath);
+      }
+
+      sql += ` WHERE id=?`;
+      params.push(id);
+
+      const [result] = await db.execute(sql, params);
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ success: false, message: 'Loan offer not found' });
+      }
+
+      return res.json({ success: true, message: 'Loan offer updated successfully' });
+    } catch (err) {
+      console.error('Error updating loan offer:', err);
+      return res.status(500).json({ success: false, message: 'Server error' });
+    }
+  });
 }
+
 
 module.exports = { sendOtpHandler,updateUserInfoHandler,
   updateUserLoanHandler,verifyOtpHandler,
