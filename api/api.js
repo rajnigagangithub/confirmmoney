@@ -332,17 +332,22 @@ async function getAllLoanOffersHandler(req, res) {
       }
     ];
 
+    // ✅ Attach documents to each offer record
+    const offersWithDocuments = rows.map(offer => ({
+      ...offer,
+      documents
+    }));
+
     return res.json({
       success: true,
-      offers: rows,
-      documents: documents
+      offers: offersWithDocuments
     });
-
   } catch (err) {
     console.error('Error fetching loan offers:', err);
     return res.status(500).json({ success: false, message: 'Server error' });
   }
 }
+
 
 
 async function getLoanOfferByIdHandler(req, res) {
