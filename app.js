@@ -25,6 +25,8 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
   console.log(`Created directory: ${uploadDir}`);
 }
+app.use('/uploads', express.static('uploads'));
+
 app.get('/', (req, res) => {
   res.send('ConfirmMoney Backend is running!');
 });
