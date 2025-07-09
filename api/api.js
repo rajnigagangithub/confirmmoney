@@ -289,8 +289,13 @@ function addLoanOfferHandler(req, res) {
       return res.status(500).json({ success: false, message: 'Image upload failed' });
     }
 
+<<<<<<< HEAD
+    const { loanAmount, interestRate, processingFee, tenure, link } = req.body;
+    if (!loan_amount || !interest_rate) {
+=======
     const { loanAmount, interestRate, processingFee, tenure, link , description,recommended} = req.body;
     if (!loanAmount || !interestRate) {
+>>>>>>> 2103a54d068b6860475af2f780b5553f3a6b0e72
       return res.status(400).json({ success: false, message: 'Required fields are missing' });
     }
 
