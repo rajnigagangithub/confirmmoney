@@ -5,7 +5,7 @@ const router = express.Router();
 const allowedOrigins = [
   'https://confirm.money',
   'https://www.confirm.money',
-  'http://localhost:3000'
+  'http://localhost:5173'
 ];
 
 const corsOptions = {
