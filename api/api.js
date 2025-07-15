@@ -438,7 +438,33 @@ async function updateLoanOfferHandler(req, res) {
 }
 
 
+async function otpverfification(req, res) {
+  const { firebase_token, mobile_number, type } = req.body;
+
+  if (!firebase_token || !mobile_number || !type) {
+    return res.status(400).json({ success: false, message: "Missing required fields" });
+  }
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(firebase_token);
+    const uid = decodedToken.uid;
+
+    return res.status(200).json({
+      success: true,
+      message: "User verified",
+      data: { uid, mobile_number, type }
+    });
+
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid Firebase token",
+      error: error.message
+    });
+  }
+}
+
 module.exports = { sendOtpHandler,updateUserInfoHandler,
   updateUserLoanHandler,verifyOtpHandler,
   logoutHandler,getUserInfo,userdownload,
-  addLoanOfferHandler,getAllLoanOffersHandler,getLoanOfferByIdHandler,updateLoanOfferHandler };
+  addLoanOfferHandler,getAllLoanOffersHandler,getLoanOfferByIdHandler,updateLoanOfferHandler,otpverfification };
