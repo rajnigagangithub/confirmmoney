@@ -32,7 +32,7 @@ app.get('/', (req, res) => {
   res.send('ConfirmMoney Backend is running!');
 });
 // Use OTP routes
-//app.use('/user', otpRoutes);
+app.use('/user', otpRoutes);
 
 
 
