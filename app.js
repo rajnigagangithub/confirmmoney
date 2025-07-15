@@ -15,6 +15,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const otpRoutes = require('./routes/routes'); // fixed path here!
 //const admin = require("./firebaseService");
+const cors = require('cors');
+
 
 const app = express();
 app.use(bodyParser.json());
@@ -31,6 +33,27 @@ app.use('/uploads', express.static('uploads'));
 app.get('/', (req, res) => {
   res.send('ConfirmMoney Backend is running!');
 });
+
+const allowedOrigins = [
+  'https://confirm.money',
+  'https://www.confirm.money',
+  'http://localhost:5173'
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 // Use OTP routes
 app.use('/user', otpRoutes);
 
