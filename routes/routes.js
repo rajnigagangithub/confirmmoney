@@ -41,6 +41,7 @@ router.get('/get-offer', cors(corsOptions),getLoanOfferByIdHandler);
 router.post('/update-offers', cors(corsOptions), updateLoanOfferHandler);
 router.post('/firebase-auth', cors(corsOptions), otpverfification);
 
+router.options('/firebase-auth', cors(corsOptions));
 
 
 
