@@ -52,7 +52,7 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 };
 
-app.use(cors(corsOptions));
+
 // Use OTP routes
 app.use('/user', otpRoutes);
 
