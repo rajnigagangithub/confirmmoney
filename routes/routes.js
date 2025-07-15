@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const admin = require("./firebaseService");
 
 const router = express.Router();
 const allowedOrigins = [
@@ -20,8 +21,9 @@ const corsOptions = {
     }
   },
   
- credentials: true,
-  methods: ['POST', 'OPTIONS']
+
+  methods: ['POST'],
+   credentials: true
 
 };
 
@@ -41,7 +43,33 @@ router.post('/add-offers', cors(corsOptions),addLoanOfferHandler);
 router.get('/offer-list', cors(corsOptions), getAllLoanOffersHandler);
 router.get('/get-offer', cors(corsOptions),getLoanOfferByIdHandler);
 router.post('/update-offers', cors(corsOptions), updateLoanOfferHandler);
-router.post('/firebase-auth', cors(corsOptions), otpverfification);
+
+router.post('/firebase-auth', cors(corsOptions), async (req, res) => {
+  const { firebase_token, mobile_number, type } = req.body;
+
+  if (!firebase_token || !mobile_number || !type) {
+    return res.status(400).json({ success: false, message: "Missing required fields" });
+  }
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(firebase_token);
+    const uid = decodedToken.uid;
+
+    return res.status(200).json({
+      success: true,
+      message: "User verified",
+      data: { uid, mobile_number, type }
+    });
+
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid Firebase token",
+      error: error.message
+    });
+  }
+});
+
 
 
 
