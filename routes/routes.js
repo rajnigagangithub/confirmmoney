@@ -41,7 +41,7 @@ router.get('/get-offer', cors(corsOptions),getLoanOfferByIdHandler);
 router.post('/update-offers', cors(corsOptions), updateLoanOfferHandler);
 
 
-router.post('/user/firebase-auth', cors(corsOptions), async (req, res) => {
+router.post('/firebase-auth', cors(corsOptions), async (req, res) => {
   const { firebase_token, mobile_number, type } = req.body;
 
   if (!firebase_token || !mobile_number || !type) {
