@@ -25,7 +25,7 @@ const corsOptions = {
 
 const { sendOtpHandler,updateUserInfoHandler,updateUserLoanHandler,
     verifyOtpHandler,logoutHandler,getUserInfo,userdownload,addLoanOfferHandler 
-,getAllLoanOffersHandler,getLoanOfferByIdHandler,updateLoanOfferHandler} = require('../api/api');
+,getAllLoanOffersHandler,getLoanOfferByIdHandler,updateLoanOfferHandler,otpverfification} = require('../api/api');
 const authenticateToken = require('../middleware/auth');
 
 router.post('/send', cors(corsOptions), sendOtpHandler);
@@ -39,33 +39,8 @@ router.post('/add-offers', cors(corsOptions),addLoanOfferHandler);
 router.get('/offer-list', cors(corsOptions), getAllLoanOffersHandler);
 router.get('/get-offer', cors(corsOptions),getLoanOfferByIdHandler);
 router.post('/update-offers', cors(corsOptions), updateLoanOfferHandler);
+router.post('/firebase-auth', cors(corsOptions), otpverfification);
 
-
-router.post('/firebase-auth', cors(corsOptions), async (req, res) => {
-  const { firebase_token, mobile_number, type } = req.body;
-
-  if (!firebase_token || !mobile_number || !type) {
-    return res.status(400).json({ success: false, message: "Missing required fields" });
-  }
-
-  try {
-    const decodedToken = await admin.auth().verifyIdToken(firebase_token);
-    const uid = decodedToken.uid;
-
-    return res.status(200).json({
-      success: true,
-      message: "User verified",
-      data: { uid, mobile_number, type }
-    });
-
-  } catch (error) {
-    return res.status(401).json({
-      success: false,
-      message: "Invalid Firebase token",
-      error: error.message
-    });
-  }
-});
 
 
 
