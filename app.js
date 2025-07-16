@@ -15,7 +15,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const otpRoutes = require('./routes/routes'); // fixed path here!
 const cors = require('cors');
-const admin = require("./firebaseService");
+//const admin = require("./firebaseService");
 
 const app = express();
 app.use(bodyParser.json());
