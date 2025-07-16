@@ -61,9 +61,9 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-admin.initializeApp({
-  credential: admin.credential.applicationDefault(), // or use cert() if needed
-});
+// admin.initializeApp({
+//   credential: admin.credential.applicationDefault(), // or use cert() if needed
+// });
 app.post('/user/firebase-auth', async (req, res) => {
   const { firebase_token, mobile_number, type } = req.body;
 
