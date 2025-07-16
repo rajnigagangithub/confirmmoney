@@ -53,7 +53,6 @@ const corsOptions = {
     }
   },
   
-
   methods: ['POST'],
    credentials: true
 
