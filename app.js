@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
 });
 
 // Use OTP routes
-app.use('/user', otpRoutes);
+
 const allowedOrigins = [
   'https://confirm.money',
   'https://www.confirm.money',
@@ -59,7 +59,7 @@ const corsOptions = {
    credentials: true
 
 };
-
+app.use('/user', cors(corsOptions), otpRoutes);
 app.use(cors(corsOptions));
 // admin.initializeApp({
 //   credential: admin.credential.applicationDefault(), // or use cert() if needed
