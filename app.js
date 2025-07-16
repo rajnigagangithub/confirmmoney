@@ -14,7 +14,7 @@ process.on('unhandledRejection', (reason, promise) => {
 const express = require('express');
 const bodyParser = require('body-parser');
 const otpRoutes = require('./routes/routes'); // fixed path here!
-const admin = require("./firebaseService");
+//const admin = require("./firebaseService");
 
 const app = express();
 app.use(bodyParser.json());
@@ -33,33 +33,33 @@ app.get('/', (req, res) => {
 });
 // Use OTP routes
 app.use('/user', otpRoutes);
-app.post("/user/firebase-auth", async (req, res) => {
-  const { firebase_token, mobile_number, type } = req.body;
+// app.post("/user/firebase-auth", async (req, res) => {
+//   const { firebase_token, mobile_number, type } = req.body;
 
-  if (!firebase_token || !mobile_number || !type) {
-    return res.status(400).json({ success: false, message: "Missing required fields" });
-  }
+//   if (!firebase_token || !mobile_number || !type) {
+//     return res.status(400).json({ success: false, message: "Missing required fields" });
+//   }
 
-  try {
-    // Verify Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(firebase_token);
-    const uid = decodedToken.uid;
+//   try {
+//     // Verify Firebase ID token
+//     const decodedToken = await admin.auth().verifyIdToken(firebase_token);
+//     const uid = decodedToken.uid;
 
-    // Your custom logic here
-    return res.status(200).json({
-      success: true,
-      message: "User verified",
-      data: {
-        uid,
-        mobile_number,
-        type
-      }
-    });
+//     // Your custom logic here
+//     return res.status(200).json({
+//       success: true,
+//       message: "User verified",
+//       data: {
+//         uid,
+//         mobile_number,
+//         type
+//       }
+//     });
 
-  } catch (error) {
-    return res.status(401).json({ success: false, message: "Invalid Firebase token", error: error.message });
-  }
-});
+//   } catch (error) {
+//     return res.status(401).json({ success: false, message: "Invalid Firebase token", error: error.message });
+//   }
+// });
 
 
 const PORT = 3000;
