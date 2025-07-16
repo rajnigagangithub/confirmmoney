@@ -21,7 +21,9 @@ const app = express();
 app.use(bodyParser.json());
 const fs = require('fs');
 const path = require('path');
-
+const db = require('./db');
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = 'your_super_secret_key';
 const uploadDir = path.join(__dirname, 'uploads/logos');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -62,28 +64,61 @@ app.use(cors(corsOptions));
 // admin.initializeApp({
 //   credential: admin.credential.applicationDefault(), // or use cert() if needed
 // });
-app.post('/user/firebase-auth', async (req, res) => {
-  const { firebase_token, mobile_number, type } = req.body;
+app.post("/user/firebase-auth", async (req, res) => {
+  const { firebase_token, mobile_number, type } = req.body; // ✅ Added `otp`
 
-  if (!firebase_token || !mobile_number || !type) {
-    return res.status(400).json({ success: false, message: 'Missing required fields' });
+  if (!firebase_token || !mobile_number || !type ) {
+    return res.status(400).json({ success: false, message: "Missing required fields" });
   }
 
   try {
+    // ✅ Verify Firebase ID token
     const decodedToken = await admin.auth().verifyIdToken(firebase_token);
     const uid = decodedToken.uid;
 
-    return res.status(200).json({
-      success: true,
-      message: 'User verified',
-      data: { uid, mobile_number, type }
-    });
+    const [rows] = await db.execute(
+      `SELECT id, otp FROM users WHERE mobile_number = ?`,
+      [mobile_number]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const user = rows[0];
+
+   
+
+      const tokenPayload = {
+        user_id: user.id,
+        mobile_number
+      };
+
+      const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '24h' });
+
+      // ✅ Update access_token
+      await db.execute(
+        `UPDATE users SET access_token = ? WHERE mobile_number = ?`,
+        [token, mobile_number]
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "User verified",
+        data: {
+          uid,
+          mobile_number,
+          type,
+          token
+        }
+      });
+
+    
+
   } catch (error) {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid Firebase token',
-      error: error.message
-    });
+    console.error("Firebase verification failed:", error);
+    return res.status(401).json({ success: false, message: "Invalid Firebase token", error: error.message
+ });
   }
 });
 
