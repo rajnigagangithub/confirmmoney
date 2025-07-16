@@ -34,25 +34,6 @@ app.get('/', (req, res) => {
   res.send('ConfirmMoney Backend is running!');
 });
 
-const allowedOrigins = [
-  'https://confirm.money',
-  'https://www.confirm.money',
-  'http://localhost:5173'
-];
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-};
-
-
 // Use OTP routes
 app.use('/user', otpRoutes);
 
