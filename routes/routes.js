@@ -29,7 +29,7 @@ const corsOptions = {
 
 const { sendOtpHandler,updateUserInfoHandler,updateUserLoanHandler,
     verifyOtpHandler,logoutHandler,getUserInfo,userdownload,addLoanOfferHandler 
-,getAllLoanOffersHandler,getLoanOfferByIdHandler,updateLoanOfferHandler,otpverfification} = require('../api/api');
+,getAllLoanOffersHandler,getLoanOfferByIdHandler,updateLoanOfferHandler} = require('../api/api');
 const authenticateToken = require('../middleware/auth');
 
 router.post('/send', cors(corsOptions), sendOtpHandler);
