@@ -22,7 +22,7 @@ const corsOptions = {
   },
   
 
-  methods: ['POST'],
+  methods: ['POST','GET'],
    credentials: true
 
 };
