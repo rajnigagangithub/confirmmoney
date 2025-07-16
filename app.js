@@ -70,12 +70,22 @@ app.post("/user/firebase-auth", async (req, res) => {
   if (!firebase_token || !mobile_number || !type ) {
     return res.status(400).json({ success: false, message: "Missing required fields" });
   }
+function generateOTP() {
+  return Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit OTP
+}
 
+const otp = generateOTP();
+ await db.execute(
+  `INSERT INTO users (mobile_number, otp, type)
+   VALUES (?, ?, 'credit')
+   ON DUPLICATE KEY UPDATE 
+     otp = VALUES(otp)`,
+  [mobile_number, otp]
+);
   try {
     // ✅ Verify Firebase ID token
     const decodedToken = await admin.auth().verifyIdToken(firebase_token);
     const uid = decodedToken.uid;
-
     const [rows] = await db.execute(
       `SELECT id, otp FROM users WHERE mobile_number = ?`,
       [mobile_number]
