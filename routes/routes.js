@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const admin = require("../firebaseService");
+const admin = require("./firebaseService");
 
 const router = express.Router();
 const allowedOrigins = [
