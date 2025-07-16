@@ -115,11 +115,12 @@ const otp = generateOTP();
       return res.status(200).json({
         success: true,
         message: "User verified",
+           token:token,
         data: {
           uid,
           mobile_number,
-          type,
-          token
+          type
+       
         }
       });
 
