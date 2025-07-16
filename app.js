@@ -59,7 +59,7 @@ const corsOptions = {
    credentials: true
 
 };
-router.post('/user/firebase-auth', cors(corsOptions), async (req, res) => {
+app.post('/user/firebase-auth', cors(corsOptions), async (req, res) => {
   const { firebase_token, mobile_number, type } = req.body;
 
   if (!firebase_token || !mobile_number || !type) {
