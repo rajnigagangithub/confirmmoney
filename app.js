@@ -40,8 +40,7 @@ app.get('/', (req, res) => {
 const allowedOrigins = [
   'https://confirm.money',
   'https://www.confirm.money',
-  'http://localhost:5173',
-  'https://confirm-money.vercel.app/'
+  'http://localhost:5173'
 ];
 
 const corsOptions = {
