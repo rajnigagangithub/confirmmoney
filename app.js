@@ -101,7 +101,8 @@ const otp = generateOTP();
 
       const tokenPayload = {
         user_id: user.id,
-        mobile_number
+        mobile_number,
+        user_type: user.user_type || 'user',
       };
 
       const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '24h' });
@@ -116,7 +117,7 @@ const otp = generateOTP();
         success: true,
         message: "User verified",
            token:token,
-            user_type:user.user_type,
+            
         data: {
           uid,
           mobile_number,
