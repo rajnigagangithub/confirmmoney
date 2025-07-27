@@ -88,7 +88,7 @@ const otp = generateOTP();
     const decodedToken = await admin.auth().verifyIdToken(firebase_token);
     const uid = decodedToken.uid;
     const [rows] = await db.execute(
-      `SELECT id, otp FROM users WHERE mobile_number = ?`,
+      `SELECT id, otp,user_type FROM users WHERE mobile_number = ?`,
       [mobile_number]
     );
 
@@ -117,6 +117,7 @@ const otp = generateOTP();
         success: true,
         message: "User verified",
            token:token,
+            user_type:user.user_type
         data: {
           uid,
           mobile_number,
