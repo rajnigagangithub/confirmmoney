@@ -116,7 +116,7 @@ const otp = generateOTP();
         success: true,
         message: "User verified",
            token:token,
-            user_type:user.user_type
+            user_type:user.user_type,
         data: {
           uid,
           mobile_number,
